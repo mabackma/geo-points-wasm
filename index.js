@@ -14,7 +14,7 @@ async function handleFile(file) {
             // Start timing
             const start = performance.now();
 
-            // Example coordinates for the bounding box
+            // Example coordinates for the bounding box:
             /*
             const min_x = 25.347136232586948;
             const max_x = 25.42651387476916;

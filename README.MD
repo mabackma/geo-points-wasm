@@ -1,6 +1,6 @@
 ## Build WebAssembly Package from Rust
 
-1. Place the `geo_points_wasm` and `geo_points` in the same folder.
+1. Place the `geo_points_wasm` and `geo_points` in the same folder
 2. Run the following command to build the WebAssembly package:
 
    ```bash

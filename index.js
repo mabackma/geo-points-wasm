@@ -21,10 +21,10 @@ async function handleFile(file) {
             const min_y = 66.42980392068148;
             const max_y = 66.46850960846054;
             */
-            const min_x = 25.37992580430022;
-            const max_x = 25.39148329862563;
-            const min_y = 66.4536396062254;
-            const max_y = 66.45570515162402;
+            const min_x = 25.38452250292068;
+            const max_x = 25.3854564530961;
+            const min_y = 66.44410131097321;
+            const max_y = 66.44509780431768;
 
             // Call the WebAssembly function with the XML content
             const result = await geo_json_from_coords(min_x, max_x, min_y, max_y, xmlContent);

@@ -21,10 +21,10 @@ async function handleFile(file) {
             const min_y = 66.42980392068148;
             const max_y = 66.46850960846054;
             */
-            const min_x = 25.38452250292068;
-            const max_x = 25.3854564530961;
-            const min_y = 66.44410131097321;
-            const max_y = 66.44509780431768;
+            const min_x = 25.40816481024935;
+            const max_x = 25.40907894043688;
+            const min_y = 66.44532693892663;
+            const max_y = 66.44629687395998;
 
             // Call the WebAssembly function with the XML content
             const result = await geo_json_from_coords(min_x, max_x, min_y, max_y, xmlContent);
@@ -34,7 +34,7 @@ async function handleFile(file) {
             const bufferPtr = result.buffer_pointer;
 
             // Access the raw memory buffer directly using Float64Array
-            const wasmMemory = new Float64Array(memory.buffer, Number(bufferPtr), maxTreeCount * 3);
+            const wasmMemory = new Float64Array(memory.buffer, Number(bufferPtr), maxTreeCount * 5);
 
             // End timing
             const end = performance.now();
@@ -48,14 +48,16 @@ async function handleFile(file) {
             console.log('Buffer Pointer:', bufferPtr);
 
             let erroneousTrees = 0;
-            for (let i = 0; i < wasmMemory.length / 3; i++) {
-                const x = wasmMemory[i * 3];      // x coordinate
-                const y = wasmMemory[i * 3 + 1];  // y coordinate
-                const species = wasmMemory[i * 3 + 2]; // species as f64
+            for (let i = 0; i < treeCount; i++) {
+                const x = wasmMemory[i * 5];      // x coordinate
+                const y = wasmMemory[i * 5 + 1];  // y coordinate
+                const species = wasmMemory[i * 5 + 2]; // species as f64
+                const treeHeight = wasmMemory[i * 5 + 3]; // height as f64
+                const treeStatus = wasmMemory[i * 5 + 4]; // status as f64
 
                 if (species !== 0) {
-                    console.log(`JAVASCRIPT Tree ${i}: x=${x}, y=${y}, tree species=${species}`);
-                    if (!Number.isInteger(species) || x < min_x || x > max_x || y < min_y || y > max_y) {
+                    console.log(`JAVASCRIPT Tree ${i}: x=${x}, y=${y}, species=${species}, height=${treeHeight}, status=${treeStatus}`);
+                    if (!Number.isInteger(species) || x < min_x || x > max_x || y < min_y || y > max_y ) {
                         erroneousTrees++;
                     }   
                 }             
@@ -63,6 +65,9 @@ async function handleFile(file) {
 
             console.log(`Done logging ${treeCount} trees`);
             console.log(`Erroneous trees: ${erroneousTrees}`);
+
+            console.log('Let\'s cut some trees!');
+
         } catch (error) {
             console.error('Error:', error);
         }

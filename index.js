@@ -68,12 +68,28 @@ async function handleFile(file) {
 
             console.log('Let\'s cut some trees!');
 
+            const sharedBuffer = new SharedBuffer(maxTreeCount);
+            sharedBuffer.set_ptr(bufferPtr);
+            cutTree(20, sharedBuffer, wasmMemory);
         } catch (error) {
             console.error('Error:', error);
         }
     };
 
     reader.readAsText(file);
+}
+
+// Function to cut down a tree and mark it as a stump
+function cutTree(index, sharedBuffer, wasmMemory) {
+    // Call the WebAssembly method to cut the tree
+    sharedBuffer.cut_tree(index);
+
+    const x = wasmMemory[index * 5];
+    const y = wasmMemory[index * 5 + 1];  
+    const species = wasmMemory[index * 5 + 2];
+    const treeHeight = wasmMemory[index * 5 + 3]; 
+    const treeStatus = wasmMemory[index * 5 + 4]; // Get the updated tree status
+    console.log(`JAVASCRIPT Tree ${index}: x=${x}, y=${y}, species=${species}, height=${treeHeight}, status=${treeStatus}`);
 }
 
 document.getElementById('fileInput').addEventListener('change', (event) => {

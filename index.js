@@ -55,7 +55,8 @@ async function handleFile(file) {
             const sharedBuffer = new SharedBuffer(maxTreeCount);
             sharedBuffer.set_ptr(bufferPtr);
 
-            cutTrees(sharedBuffer, 20, treeCount);
+            // Call the WebAssembly method to cut the trees
+            sharedBuffer.forest_clearing(20, treeCount);
             displayTrees(treeCount, wasmMemory);
         } catch (error) {
             console.error('Error:', error);
@@ -63,12 +64,6 @@ async function handleFile(file) {
     };
 
     reader.readAsText(file);
-}
-
-// Function to cut down trees and mark them as stumps
-function cutTrees(sharedBuffer, amount, treeCount) {
-    // Call the WebAssembly method to cut the trees
-    sharedBuffer.forest_clearing(amount, treeCount);
 }
 
 function displayTrees(treeCount, wasmMemory) {

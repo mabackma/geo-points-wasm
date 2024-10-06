@@ -47,30 +47,16 @@ async function handleFile(file) {
             console.log('Tree count:', treeCount);
             console.log('Buffer Pointer:', bufferPtr);
 
-            let erroneousTrees = 0;
-            for (let i = 0; i < treeCount; i++) {
-                const x = wasmMemory[i * 5];      // x coordinate
-                const y = wasmMemory[i * 5 + 1];  // y coordinate
-                const species = wasmMemory[i * 5 + 2]; // species as f64
-                const treeHeight = wasmMemory[i * 5 + 3]; // height as f64
-                const treeStatus = wasmMemory[i * 5 + 4]; // status as f64
+            displayTrees(treeCount, wasmMemory);
 
-                if (species !== 0) {
-                    console.log(`JAVASCRIPT Tree ${i}: x=${x}, y=${y}, species=${species}, height=${treeHeight}, status=${treeStatus}`);
-                    if (!Number.isInteger(species) || x < min_x || x > max_x || y < min_y || y > max_y ) {
-                        erroneousTrees++;
-                    }   
-                }             
-            }
+            console.log('Let\'s cut some trees! Cutting 20 trees...');
 
-            console.log(`Done logging ${treeCount} trees`);
-            console.log(`Erroneous trees: ${erroneousTrees}`);
-
-            console.log('Let\'s cut some trees!');
-
+            // Create a SharedBuffer instance and set the pointer to the buffer
             const sharedBuffer = new SharedBuffer(maxTreeCount);
             sharedBuffer.set_ptr(bufferPtr);
-            cutTree(20, sharedBuffer, wasmMemory);
+
+            cutTrees(sharedBuffer, 20, treeCount);
+            displayTrees(treeCount, wasmMemory);
         } catch (error) {
             console.error('Error:', error);
         }
@@ -79,17 +65,24 @@ async function handleFile(file) {
     reader.readAsText(file);
 }
 
-// Function to cut down a tree and mark it as a stump
-function cutTree(index, sharedBuffer, wasmMemory) {
-    // Call the WebAssembly method to cut the tree
-    sharedBuffer.cut_tree(index);
+// Function to cut down trees and mark them as stumps
+function cutTrees(sharedBuffer, amount, treeCount) {
+    // Call the WebAssembly method to cut the trees
+    sharedBuffer.forest_clearing(amount, treeCount);
+}
 
-    const x = wasmMemory[index * 5];
-    const y = wasmMemory[index * 5 + 1];  
-    const species = wasmMemory[index * 5 + 2];
-    const treeHeight = wasmMemory[index * 5 + 3]; 
-    const treeStatus = wasmMemory[index * 5 + 4]; // Get the updated tree status
-    console.log(`JAVASCRIPT Tree ${index}: x=${x}, y=${y}, species=${species}, height=${treeHeight}, status=${treeStatus}`);
+function displayTrees(treeCount, wasmMemory) {
+    for (let i = 0; i < treeCount; i++) {
+        const x = wasmMemory[i * 5];      // x coordinate
+        const y = wasmMemory[i * 5 + 1];  // y coordinate
+        const species = wasmMemory[i * 5 + 2]; // species as f64
+        const treeHeight = wasmMemory[i * 5 + 3]; // height as f64
+        const treeStatus = wasmMemory[i * 5 + 4]; // status as f64
+
+        console.log(`JAVASCRIPT Tree ${i}: x=${x}, y=${y}, species=${species}, height=${treeHeight}, status=${treeStatus}`);
+    }
+
+    console.log(`Done logging ${treeCount} trees`);
 }
 
 document.getElementById('fileInput').addEventListener('change', (event) => {

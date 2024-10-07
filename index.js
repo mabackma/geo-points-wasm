@@ -25,7 +25,6 @@ async function handleFile(file) {
             const max_x = 25.40907894043688;
             const min_y = 66.44532693892663;
             const max_y = 66.44629687395998;
-            
             /*
             const min_x = 25.390573376834286;
             const max_x = 25.391519399031605;
@@ -40,7 +39,7 @@ async function handleFile(file) {
             const bufferPtr = result.buffer_pointer;
 
             // Access the raw memory buffer directly using Float64Array
-            const wasmMemory = new Float64Array(memory.buffer, Number(bufferPtr), maxTreeCount * 6);
+            const wasmMemory = new Float64Array(memory.buffer, Number(bufferPtr), maxTreeCount * 7);
 
             // End timing
             const end = performance.now();
@@ -55,14 +54,14 @@ async function handleFile(file) {
 
             displayTrees(treeCount, wasmMemory);
 
-            console.log('Let\'s cut some trees! Cutting 20 trees...');
+            console.log('Let\'s cut some trees! Cutting 500 trees...');
 
             // Create a SharedBuffer instance and set the pointer to the buffer
             const sharedBuffer = new SharedBuffer(maxTreeCount);
             sharedBuffer.set_ptr(bufferPtr);
 
             // Call the WebAssembly method to cut the trees
-            sharedBuffer.forest_clearing(20, treeCount);
+            sharedBuffer.forest_clearing(500, treeCount);
             displayTrees(treeCount, wasmMemory);
         } catch (error) {
             console.error('Error:', error);
@@ -74,14 +73,17 @@ async function handleFile(file) {
 
 function displayTrees(treeCount, wasmMemory) {
     for (let i = 0; i < treeCount; i++) {
-        const standId = wasmMemory[i * 6]; // stand id as f64
-        const x = wasmMemory[i * 6 + 1];      // x coordinate
-        const y = wasmMemory[i * 6 + 2];  // y coordinate
-        const species = wasmMemory[i * 6 + 3]; // species as f64
-        const treeHeight = wasmMemory[i * 6 + 4]; // height as f64
-        const treeStatus = wasmMemory[i * 6 + 5]; // status as f64
+        const standId = wasmMemory[i * 7]; // stand id as f64
+        const x = wasmMemory[i * 7 + 1];      // x coordinate
+        const y = wasmMemory[i * 7 + 2];  // y coordinate
+        const species = wasmMemory[i * 7 + 3]; // species as f64
+        const treeHeight = wasmMemory[i * 7 + 4]; // height as f64
+        const treeStatus = wasmMemory[i * 7 + 5]; // status as f64
+        const inBbox = wasmMemory[i * 7 + 6]; // inside_bbox as f64
 
-        console.log(`JAVASCRIPT Tree ${i}: stand=${standId}, x=${x}, y=${y}, species=${species}, height=${treeHeight}, status=${treeStatus}`);
+        if (inBbox == 1) {
+            console.log(`JAVASCRIPT Tree ${i}: stand=${standId}, x=${x}, y=${y}, species=${species}, height=${treeHeight}, status=${treeStatus}, inside_bbox=${inBbox}`);
+        }
     }
 
     console.log(`Done logging ${treeCount} trees`);

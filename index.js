@@ -25,7 +25,13 @@ async function handleFile(file) {
             const max_x = 25.40907894043688;
             const min_y = 66.44532693892663;
             const max_y = 66.44629687395998;
-
+            
+            /*
+            const min_x = 25.390573376834286;
+            const max_x = 25.391519399031605;
+            const min_y = 66.43538376067032;
+            const max_y = 66.43631099825501;
+            */
             // Call the WebAssembly function with the XML content
             const result = await geo_json_from_coords(min_x, max_x, min_y, max_y, xmlContent);
             const geojson = result.geojson;
@@ -34,7 +40,7 @@ async function handleFile(file) {
             const bufferPtr = result.buffer_pointer;
 
             // Access the raw memory buffer directly using Float64Array
-            const wasmMemory = new Float64Array(memory.buffer, Number(bufferPtr), maxTreeCount * 5);
+            const wasmMemory = new Float64Array(memory.buffer, Number(bufferPtr), maxTreeCount * 6);
 
             // End timing
             const end = performance.now();
@@ -68,13 +74,14 @@ async function handleFile(file) {
 
 function displayTrees(treeCount, wasmMemory) {
     for (let i = 0; i < treeCount; i++) {
-        const x = wasmMemory[i * 5];      // x coordinate
-        const y = wasmMemory[i * 5 + 1];  // y coordinate
-        const species = wasmMemory[i * 5 + 2]; // species as f64
-        const treeHeight = wasmMemory[i * 5 + 3]; // height as f64
-        const treeStatus = wasmMemory[i * 5 + 4]; // status as f64
+        const standId = wasmMemory[i * 6]; // stand id as f64
+        const x = wasmMemory[i * 6 + 1];      // x coordinate
+        const y = wasmMemory[i * 6 + 2];  // y coordinate
+        const species = wasmMemory[i * 6 + 3]; // species as f64
+        const treeHeight = wasmMemory[i * 6 + 4]; // height as f64
+        const treeStatus = wasmMemory[i * 6 + 5]; // status as f64
 
-        console.log(`JAVASCRIPT Tree ${i}: x=${x}, y=${y}, species=${species}, height=${treeHeight}, status=${treeStatus}`);
+        console.log(`JAVASCRIPT Tree ${i}: stand=${standId}, x=${x}, y=${y}, species=${species}, height=${treeHeight}, status=${treeStatus}`);
     }
 
     console.log(`Done logging ${treeCount} trees`);

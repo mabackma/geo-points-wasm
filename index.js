@@ -44,17 +44,17 @@ async function handleFile(file) {
             // End timing
             const end = performance.now();
             const duration = end - start;
-            console.log(`Time elapsed: ${duration} ms`);
+            console.log(`JAVASCRIPT Time elapsed: ${duration} ms`);
             
             // Log the GeoJSON and tree data
-            console.log('GeoJson:', geojson);
-            console.log('Max tree count:', maxTreeCount);
-            console.log('Tree count:', treeCount);
-            console.log('Buffer Pointer:', bufferPtr);
+            console.log('JAVASCRIPT GeoJson:', geojson);
+            console.log('JAVASCRIPT Max tree count:', maxTreeCount);
+            console.log('JAVASCRIPT Tree count:', treeCount);
+            console.log('JAVASCRIPT Buffer Pointer:', bufferPtr);
 
             displayTrees(treeCount, wasmMemory);
 
-            console.log('Let\'s cut some trees! Cutting 500 trees...');
+            console.log('JAVASCRIPT Let\'s cut some trees! Cutting 500 trees...');
 
             // Create a SharedBuffer instance and set the pointer to the buffer
             const sharedBuffer = new SharedBuffer(maxTreeCount);
@@ -64,7 +64,7 @@ async function handleFile(file) {
             sharedBuffer.forest_clearing(500, treeCount);
             displayTrees(treeCount, wasmMemory);
         } catch (error) {
-            console.error('Error:', error);
+            console.error('JAVASCRIPT Error:', error);
         }
     };
 
@@ -86,7 +86,7 @@ function displayTrees(treeCount, wasmMemory) {
         }
     }
 
-    console.log(`Done logging ${treeCount} trees`);
+    console.log(`JAVASCRIPT Done logging ${treeCount} trees`);
 }
 
 document.getElementById('fileInput').addEventListener('change', (event) => {

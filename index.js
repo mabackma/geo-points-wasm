@@ -38,8 +38,15 @@ async function handleFile(file) {
             const maxTreeCount = result.max_tree_count;
             const bufferPtr = result.buffer_pointer;
             
+            // Cut 500 trees from the entire stand with id 920
+            let treesToCut = 500;
+            let standId = 920;
+
+            // Get area ratio of the stand
+            let areaRatio = get_area_ratio(xmlContent, standId, min_x, max_x, min_y, max_y);
+
             // Access the raw memory buffer directly using Float64Array
-            empty_function(xmlContent);
+            //empty_function(xmlContent);
             const wasmMemory = new Float64Array(memory.buffer, Number(bufferPtr), maxTreeCount * 6);
             //empty_function(xmlContent);
 
@@ -53,24 +60,17 @@ async function handleFile(file) {
             console.log('JAVASCRIPT Max tree count:', maxTreeCount);
             console.log('JAVASCRIPT Tree count:', treeCount);
             console.log('JAVASCRIPT Buffer Pointer:', bufferPtr);
-
             displayTrees(treeCount, wasmMemory);
 
             // Create a SharedBuffer instance and set the pointer to the buffer
             const sharedBuffer = new SharedBuffer(maxTreeCount);
             sharedBuffer.set_ptr(bufferPtr);
 
-            // Cut 500 trees from the entire stand with id 920
-            let treesToCut = 500;
-            let standId = 920;
-
-            // Get area ratio of the stand
-            //let areaRatio = get_area_ratio(xmlContent, 920, min_x, max_x, min_y, max_y);
-            let areaRatio = 0.025416814722578913;
-            console.log(`JAVASCRIPT Let\'s cut some trees! Cutting ${treesToCut} trees from stand...`);
-
             // Call the WebAssembly method to cut the trees
+            console.log(`JAVASCRIPT Let\'s cut some trees! Cutting ${treesToCut} trees from stand...`);
             sharedBuffer.forest_clearing(standId, treesToCut, treeCount, areaRatio);
+
+            // Log the updated tree data
             displayTrees(treeCount, wasmMemory);
         } catch (error) {
             console.error('JAVASCRIPT Error:', error);

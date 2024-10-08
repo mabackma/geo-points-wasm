@@ -1,4 +1,4 @@
-import init, { geo_json_from_coords, SharedBuffer } from './pkg/geo_points_wasm.js';
+import init, { geo_json_from_coords, get_area_ratio, empty_function, SharedBuffer } from './pkg/geo_points_wasm.js';
 
 async function handleFile(file) {
     const reader = new FileReader();
@@ -8,7 +8,7 @@ async function handleFile(file) {
 
         // Initialize the WebAssembly module
         const wasm = await init();
-        const memory = wasm.memory
+        const memory = wasm.memory;
 
         try {
             // Start timing
@@ -54,18 +54,24 @@ async function handleFile(file) {
 
             displayTrees(treeCount, wasmMemory);
 
-            console.log('JAVASCRIPT Let\'s cut some trees! Cutting 20 trees...');
-
             // Create a SharedBuffer instance and set the pointer to the buffer
             const sharedBuffer = new SharedBuffer(maxTreeCount);
             sharedBuffer.set_ptr(bufferPtr);
 
-            // Cut 20 trees from the entire stand with id 920
-            let treesToCut = 20;
+            // Cut 500 trees from the entire stand with id 920
+            let treesToCut = 500;
             let standId = 920;
 
+            // Get area ratio of the stand
+            //let areaRatio = get_area_ratio(xmlContent, 920, min_x, max_x, min_y, max_y);
+            let areaRatio = 0.025416814722578913;
+            console.log(`JAVASCRIPT Let\'s cut some trees! Cutting ${treesToCut} trees from stand...`);
+            
+            empty_function("hello world");
+            //empty_function(xmlContent);
+
             // Call the WebAssembly method to cut the trees
-            sharedBuffer.forest_clearing(standId, treesToCut, treeCount, 1);
+            sharedBuffer.forest_clearing(920, treesToCut, treeCount, areaRatio);
             displayTrees(treeCount, wasmMemory);
         } catch (error) {
             console.error('JAVASCRIPT Error:', error);

@@ -20,17 +20,17 @@ async function handleFile(file) {
             const max_x = 25.42651387476916;
             const min_y = 66.42980392068148;
             const max_y = 66.46850960846054;
-            */
+            
             const min_x = 25.40816481024935;
             const max_x = 25.40907894043688;
             const min_y = 66.44532693892663;
             const max_y = 66.44629687395998;
-            /*
+            */
             const min_x = 25.385360286471705;
             const max_x = 25.386342814842518;
             const min_y = 66.45444694596549;
             const max_y = 66.45536783229207;
-            */
+            
             // Call the WebAssembly function with the XML content
             const result = await geo_json_from_coords(min_x, max_x, min_y, max_y, xmlContent);
             const geojson = result.geojson;
@@ -61,7 +61,7 @@ async function handleFile(file) {
             sharedBuffer.set_ptr(bufferPtr);
 
             // Call the WebAssembly method to cut the trees
-            sharedBuffer.forest_clearing(829, 20, treeCount);
+            sharedBuffer.forest_clearing(920, 20, treeCount);
             displayTrees(treeCount, wasmMemory);
         } catch (error) {
             console.error('JAVASCRIPT Error:', error);

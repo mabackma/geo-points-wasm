@@ -61,7 +61,7 @@ async function handleFile(file) {
             sharedBuffer.set_ptr(bufferPtr);
 
             // Call the WebAssembly method to cut the trees
-            sharedBuffer.forest_clearing(500, treeCount);
+            sharedBuffer.forest_clearing(829, 500, treeCount);
             displayTrees(treeCount, wasmMemory);
         } catch (error) {
             console.error('JAVASCRIPT Error:', error);

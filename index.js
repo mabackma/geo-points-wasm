@@ -30,16 +30,18 @@ async function handleFile(file) {
             const max_x = 25.386342814842518;
             const min_y = 66.45444694596549;
             const max_y = 66.45536783229207;
-            
+
             // Call the WebAssembly function with the XML content
             const result = await geo_json_from_coords(min_x, max_x, min_y, max_y, xmlContent);
             const geojson = result.geojson;
             const treeCount = result.tree_count;
             const maxTreeCount = result.max_tree_count;
             const bufferPtr = result.buffer_pointer;
-
+            
             // Access the raw memory buffer directly using Float64Array
+            empty_function(xmlContent);
             const wasmMemory = new Float64Array(memory.buffer, Number(bufferPtr), maxTreeCount * 6);
+            //empty_function(xmlContent);
 
             // End timing
             const end = performance.now();
@@ -66,12 +68,9 @@ async function handleFile(file) {
             //let areaRatio = get_area_ratio(xmlContent, 920, min_x, max_x, min_y, max_y);
             let areaRatio = 0.025416814722578913;
             console.log(`JAVASCRIPT Let\'s cut some trees! Cutting ${treesToCut} trees from stand...`);
-            
-            empty_function("hello world");
-            //empty_function(xmlContent);
 
             // Call the WebAssembly method to cut the trees
-            sharedBuffer.forest_clearing(920, treesToCut, treeCount, areaRatio);
+            sharedBuffer.forest_clearing(standId, treesToCut, treeCount, areaRatio);
             displayTrees(treeCount, wasmMemory);
         } catch (error) {
             console.error('JAVASCRIPT Error:', error);

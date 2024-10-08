@@ -60,8 +60,12 @@ async function handleFile(file) {
             const sharedBuffer = new SharedBuffer(maxTreeCount);
             sharedBuffer.set_ptr(bufferPtr);
 
+            // Cut 20 trees from the entire stand with id 920
+            let treesToCut = 20;
+            let standId = 920;
+
             // Call the WebAssembly method to cut the trees
-            sharedBuffer.forest_clearing(920, 20, treeCount);
+            sharedBuffer.forest_clearing(standId, treesToCut, treeCount, 1);
             displayTrees(treeCount, wasmMemory);
         } catch (error) {
             console.error('JAVASCRIPT Error:', error);

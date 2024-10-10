@@ -48,7 +48,18 @@ async function handleFile(file) {
             // Access the raw memory buffer directly using Float64Array
             //empty_function(xmlContent);
             const wasmMemory = new Float64Array(memory.buffer, Number(bufferPtr), maxTreeCount * 6);
-            //empty_function(xmlContent);
+            
+            console.log('JAVASCRIPT Memory Contents Before empty_function:');
+            for (let i = 0; i < maxTreeCount * 6; i++) {
+                console.log(`Memory[${i}]:`, wasmMemory[i]);
+            }
+
+            empty_function(xmlContent);
+
+            console.log('Memory Contents After empty_function:');
+            for (let i = 0; i < maxTreeCount * 6; i++) {
+                console.log(`Memory[${i}]:`, wasmMemory[i]);
+            }
 
             // End timing
             const end = performance.now();
@@ -70,6 +81,9 @@ async function handleFile(file) {
             console.log(`JAVASCRIPT Let\'s cut some trees! Cutting ${treesToCut} trees from stand...`);
             sharedBuffer.forest_clearing(standId, treesToCut, treeCount, areaRatio);
 
+            console.log('JAVASCRIPT SharedBuffer:');
+            sharedBuffer.log_buffer();
+
             // Log the updated tree data
             displayTrees(treeCount, wasmMemory);
         } catch (error) {
@@ -82,14 +96,20 @@ async function handleFile(file) {
 
 function displayTrees(treeCount, wasmMemory) {
     for (let i = 0; i < treeCount; i++) {
-        const standId = wasmMemory[i * 6]; // stand id as f64
-        const x = wasmMemory[i * 6 + 1];      // x coordinate
-        const y = wasmMemory[i * 6 + 2];  // y coordinate
-        const species = wasmMemory[i * 6 + 3]; // species as f64
-        const treeHeight = wasmMemory[i * 6 + 4]; // height as f64
-        const treeStatus = wasmMemory[i * 6 + 5]; // status as f64
-        
-        console.log(`JAVASCRIPT Tree ${i}: stand=${standId}, x=${x}, y=${y}, species=${species}, height=${treeHeight}, status=${treeStatus}`);   
+        const base = i * 6; // Calculate base index for the tree data
+        const standId = wasmMemory[base]; // stand id as f64
+        const x = wasmMemory[base + 1];      // x coordinate
+        const y = wasmMemory[base + 2];      // y coordinate
+        const species = wasmMemory[base + 3]; // species as f64
+        const treeHeight = wasmMemory[base + 4]; // height as f64
+        const treeStatus = wasmMemory[base + 5]; // status as f64
+
+        // Log only if the values are defined
+        if (standId !== undefined && x !== undefined && y !== undefined && species !== undefined) {
+            console.log(`JAVASCRIPT Tree ${i}: stand=${standId}, x=${x}, y=${y}, species=${species}, height=${treeHeight}, status=${treeStatus}`);
+        } else {
+            console.warn(`JAVASCRIPT Tree ${i} has undefined values.`);
+        }
     }
 
     console.log(`JAVASCRIPT Done logging ${treeCount} trees`);

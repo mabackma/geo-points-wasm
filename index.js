@@ -51,14 +51,14 @@ async function handleFile(file) {
             
             console.log('JAVASCRIPT Memory Contents Before empty_function:');
             for (let i = 0; i < maxTreeCount * 6; i++) {
-                console.log(`Memory[${i}]:`, wasmMemory[i]);
+                console.log(`JS Memory[${i}]:`, wasmMemory[i]);
             }
 
             empty_function(xmlContent);
 
             console.log('Memory Contents After empty_function:');
             for (let i = 0; i < maxTreeCount * 6; i++) {
-                console.log(`Memory[${i}]:`, wasmMemory[i]);
+                console.log(`JS Memory[${i}]:`, wasmMemory[i]);
             }
 
             // End timing
@@ -81,7 +81,7 @@ async function handleFile(file) {
             console.log(`JAVASCRIPT Let\'s cut some trees! Cutting ${treesToCut} trees from stand...`);
             sharedBuffer.forest_clearing(standId, treesToCut, treeCount, areaRatio);
 
-            console.log('JAVASCRIPT SharedBuffer:');
+            console.log('JAVASCRIPT SharedBuffer from RUST log function:');
             sharedBuffer.log_buffer();
 
             // Log the updated tree data

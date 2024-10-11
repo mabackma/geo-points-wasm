@@ -77,6 +77,9 @@ async function handleFile(file) {
 }
 
 function displayTrees(treeCount, wasmMemory) {
+    console.log(`JAVASCRIPT Logging trees in bounding box...`);
+
+    let treesInBboxCount = 0;
     for (let i = 0; i < treeCount; i++) {
         const base = i * 7; // Calculate base index for the tree data
         const standId = wasmMemory[base]; // stand id as f64
@@ -87,15 +90,14 @@ function displayTrees(treeCount, wasmMemory) {
         const treeStatus = wasmMemory[base + 5]; // status as f64
         const inBbox = wasmMemory[base + 6]; // inside_bbox as f64
 
-        // Log only if the values are defined
-        if (standId !== undefined && x !== undefined && y !== undefined && species !== undefined) {
+        // Log if in bounding box
+        if (inBbox !== 0) {
             console.log(`JAVASCRIPT Tree ${i}: stand=${standId}, x=${x}, y=${y}, species=${species}, height=${treeHeight}, status=${treeStatus}`);
-        } else {
-            console.warn(`JAVASCRIPT Tree ${i} has undefined values.`);
-        }
+            treesInBboxCount++;
+        } 
     }
 
-    console.log(`JAVASCRIPT Done logging ${treeCount} trees`);
+    console.log(`JAVASCRIPT Done logging ${treesInBboxCount} trees`);
 }
 
 document.getElementById('fileInput').addEventListener('change', (event) => {

@@ -58,12 +58,12 @@ async function handleFile(file) {
             const sharedBuffer = new SharedBuffer(maxTreeCount);
             sharedBuffer.set_ptr(bufferPtr);
 
-            // Cut 500 trees from the entire stand with id 920
-            let treesToCut = 500;
-            let standId = 920;
+            // Cut 500 trees from the entire stand
+            let treesToCut = 100;
+            let standId = 918;
             
             // Call the WebAssembly method to cut the trees
-            console.log(`JAVASCRIPT Let\'s cut some trees! Cutting ${treesToCut} trees from stand...`);
+            console.log(`JAVASCRIPT Let\'s cut some trees! Cutting ${treesToCut} trees from stand ${standId}...`);
             sharedBuffer.forest_clearing(standId, treesToCut, treeCount);
 
             // Log the updated tree data

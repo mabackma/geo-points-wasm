@@ -1,4 +1,4 @@
-import init, { geo_json_from_coords, get_area_ratio, empty_function, SharedBuffer } from './pkg/geo_points_wasm.js';
+import init, { geo_json_from_coords, SharedBuffer } from './pkg/geo_points_wasm.js';
 
 async function handleFile(file) {
     const reader = new FileReader();
@@ -37,29 +37,10 @@ async function handleFile(file) {
             const treeCount = result.tree_count;
             const maxTreeCount = result.max_tree_count;
             const bufferPtr = result.buffer_pointer;
-            
-            // Cut 500 trees from the entire stand with id 920
-            let treesToCut = 500;
-            let standId = 920;
-
-            // Get area ratio of the stand
-            let areaRatio = get_area_ratio(xmlContent, standId, min_x, max_x, min_y, max_y);
 
             // Access the raw memory buffer directly using Float64Array
             //empty_function(xmlContent);
-            const wasmMemory = new Float64Array(memory.buffer, Number(bufferPtr), maxTreeCount * 6);
-            
-            console.log('JAVASCRIPT Memory Contents Before empty_function:');
-            for (let i = 0; i < maxTreeCount * 6; i++) {
-                console.log(`JS Memory[${i}]:`, wasmMemory[i]);
-            }
-
-            empty_function(xmlContent);
-
-            console.log('Memory Contents After empty_function:');
-            for (let i = 0; i < maxTreeCount * 6; i++) {
-                console.log(`JS Memory[${i}]:`, wasmMemory[i]);
-            }
+            const wasmMemory = new Float64Array(memory.buffer, Number(bufferPtr), maxTreeCount * 7);
 
             // End timing
             const end = performance.now();
@@ -77,12 +58,13 @@ async function handleFile(file) {
             const sharedBuffer = new SharedBuffer(maxTreeCount);
             sharedBuffer.set_ptr(bufferPtr);
 
+            // Cut 500 trees from the entire stand with id 920
+            let treesToCut = 500;
+            let standId = 920;
+            
             // Call the WebAssembly method to cut the trees
             console.log(`JAVASCRIPT Let\'s cut some trees! Cutting ${treesToCut} trees from stand...`);
-            sharedBuffer.forest_clearing(standId, treesToCut, treeCount, areaRatio);
-
-            console.log('JAVASCRIPT SharedBuffer from RUST log function:');
-            sharedBuffer.log_buffer();
+            sharedBuffer.forest_clearing(standId, treesToCut, treeCount);
 
             // Log the updated tree data
             displayTrees(treeCount, wasmMemory);
@@ -96,13 +78,14 @@ async function handleFile(file) {
 
 function displayTrees(treeCount, wasmMemory) {
     for (let i = 0; i < treeCount; i++) {
-        const base = i * 6; // Calculate base index for the tree data
+        const base = i * 7; // Calculate base index for the tree data
         const standId = wasmMemory[base]; // stand id as f64
         const x = wasmMemory[base + 1];      // x coordinate
         const y = wasmMemory[base + 2];      // y coordinate
         const species = wasmMemory[base + 3]; // species as f64
         const treeHeight = wasmMemory[base + 4]; // height as f64
         const treeStatus = wasmMemory[base + 5]; // status as f64
+        const inBbox = wasmMemory[base + 6]; // inside_bbox as f64
 
         // Log only if the values are defined
         if (standId !== undefined && x !== undefined && y !== undefined && species !== undefined) {

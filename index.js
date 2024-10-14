@@ -1,5 +1,10 @@
 import init, { geo_json_from_coords, SharedBuffer } from './pkg/geo_points_wasm.js';
 
+var map = L.map('map').setView([66.455, 25.385], 25);
+L.tileLayer('https://api.maptiler.com/maps/outdoor-v2/{z}/{x}/{y}.png?key=IpbAE6ELT0NSokMlB6KG', {
+    attribution: '<a href="https://www.maptiler.com/copyright/" target="_blank">&copy; MapTiler</a> <a href="https://www.openstreetmap.org/copyright" target="_blank">&copy; OpenStreetMap contributors</a>',   
+}).addTo(map);
+
 async function handleFile(file) {
     const reader = new FileReader();
 
@@ -32,11 +37,16 @@ async function handleFile(file) {
             const max_y = 66.45536783229207;
 
             // Call the WebAssembly function with the XML content
-            const result = await geo_json_from_coords(min_x, max_x, min_y, max_y, xmlContent);
+            const res = await geo_json_from_coords(min_x, max_x, min_y, max_y, xmlContent);
+            const result = JSON.parse(res);
+
             const geojson = result.geojson;
             const treeCount = result.tree_count;
             const maxTreeCount = result.max_tree_count;
             const bufferPtr = result.buffer_pointer;
+
+            // Display the GeoJSON on the map
+            displayGeoJSONOnMap(geojson);
 
             // Access the raw memory buffer directly using Float64Array
             //empty_function(xmlContent);
@@ -74,6 +84,16 @@ async function handleFile(file) {
     };
 
     reader.readAsText(file);
+}
+
+// Function to display GeoJSON on the map
+function displayGeoJSONOnMap(geojson) {
+    // Create a GeoJSON layer and add it to the map
+    const geoJsonLayer = L.geoJSON(geojson).addTo(map);
+
+    // Fit map to the bounds of the GeoJSON data
+    const bounds = geoJsonLayer.getBounds();
+    map.fitBounds(bounds);
 }
 
 function displayTrees(treeCount, wasmMemory) {

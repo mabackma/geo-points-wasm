@@ -1,6 +1,6 @@
 import init, { geo_json_from_coords, SharedBuffer } from './pkg/geo_points_wasm.js';
 
-var map = L.map('map').setView([66.455, 25.385], 25);
+var map = L.map('map').setView([66.455, 25.385], 15);
 L.tileLayer('https://api.maptiler.com/maps/outdoor-v2/{z}/{x}/{y}.png?key=IpbAE6ELT0NSokMlB6KG', {
     attribution: '<a href="https://www.maptiler.com/copyright/" target="_blank">&copy; MapTiler</a> <a href="https://www.openstreetmap.org/copyright" target="_blank">&copy; OpenStreetMap contributors</a>',   
 }).addTo(map);

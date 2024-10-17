@@ -7,8 +7,10 @@ edition = "2021"
 geo = "0.28.0"
 geojson = "0.24.1"
 geo_points = { path = "../geo_points" }
-wasm-bindgen =  "0.2.93"
+wasm-bindgen =  "0.2.95"
 getrandom = { version = "0.2", features = ["js"] }
+ndarray = "0.16.1"
+
 
 [lib]
 crate-type = ["cdylib", "rlib"]

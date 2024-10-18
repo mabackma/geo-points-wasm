@@ -11,9 +11,9 @@ window.addEventListener('DOMContentLoaded', async () => {
 
     const jsonState = localStorage.getItem('current_virtual_forest')
     if (jsonState) {
-
+        
         forest = VirtualForest.from_json(jsonState)
-
+        
     }
 
     const div = document.createElement('div')
@@ -127,20 +127,18 @@ async function handleFile(file) {
 
             localStorage.setItem('current_virtual_forest', jsonState)
 
-            console.log(forest.to_json())
+            console.log(jsonState)
 
             return
-            console.log(forest.get_realestates())
 
             const realEstates = forest.get_realestates()
 
             console.log(realEstates)
 
-
-
             const selected = forest.get_selected_realestate()
 
             console.log(selected)
+
             // Start timing
 
             const start = performance.now();

@@ -121,6 +121,8 @@ async function handleFile(file) {
         try {
             forest = new VirtualForest(xmlContent)
 
+            await forest.get_infrastructure(xmlContent);
+
             const jsonState = forest.to_json()
 
             localStorage.setItem('current_virtual_forest', jsonState)

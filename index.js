@@ -1,4 +1,4 @@
-import init, { /* geo_json_from_coords, */ VirtualForest,/*  get_area_ratio, empty_function, SharedBuffer */ } from './pkg/geo_points_wasm.js';
+import init, { /* geo_json_from_coords, */ VirtualForest, Trees, /*  get_area_ratio, empty_function, SharedBuffer */ } from './pkg/geo_points_wasm.js';
 
 let memory
 let forest
@@ -65,9 +65,18 @@ window.addEventListener('DOMContentLoaded', async () => {
                     max_y,
                 )
 
-                console.log(trees)
-            }
+                const xValues = trees.x();
+                const yValues = trees.y();
+                const zValues = trees.z();
+                const speciesValues = trees.species();
+                const heightValues = trees.height();
+                const statusValues = trees.status();
+                const standNumberValues = trees.stand_number();
 
+                const treeObject = new Trees(xValues, yValues, zValues, speciesValues, heightValues, statusValues, standNumberValues);
+                treeObject.for_each(callback);
+            }
+            //25.38536028647170, 66.45444694596549, 25.386342814842518, 66.45536783229207
         }
     })
 
@@ -108,6 +117,19 @@ function downloadBlob(blob, filename) {
     // return a;
 }
 
+function callback(treeArgs) {
+    // Unpack the arguments from the array
+    const x = treeArgs[0];
+    const y = treeArgs[1];
+    const z = treeArgs[2];
+    const species = treeArgs[3];
+    const height = treeArgs[4];
+    const status = treeArgs[5];
+    const stand_number = treeArgs[6];
+    
+    console.log(x, y, z, species, height, status, stand_number);
+}
+
 async function handleFile(file) {
     const reader = new FileReader();
 
@@ -127,18 +149,20 @@ async function handleFile(file) {
 
             localStorage.setItem('current_virtual_forest', jsonState)
 
-            console.log(jsonState)
-
-            return
-
+            //console.log(jsonState)
+            
             const realEstates = forest.get_realestates()
 
-            console.log(realEstates)
+            //console.log(realEstates)
 
             const selected = forest.get_selected_realestate()
 
-            console.log(selected)
+            //console.log(selected)
 
+            const stand = forest.get_stand_by_id("2553942")
+
+            console.log(stand)
+            return
             // Start timing
 
             const start = performance.now();

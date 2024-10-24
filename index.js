@@ -54,7 +54,7 @@ window.addEventListener('DOMContentLoaded', async () => {
             console.log(min_x, max_x, min_y, max_y)
             if (min_x && max_x && min_y && max_y) {
 
-                const trees = forest.generate_trees_bbox(
+                const trees = forest.generate_trees(
                     min_x,
                     max_x,
                     min_y,

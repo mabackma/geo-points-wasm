@@ -77,7 +77,7 @@ window.addEventListener('DOMContentLoaded', async () => {
         if (forest) {
             // Define the parameters for the function call
             const standId = 2008; // Example stand ID
-            const operationName = 3; // 1 for Cutting, 2 for Thinning, 3 for Simulation            
+            const operationName = 2; // 1 for Cutting, 2 for Thinning, 3 for Simulation            
             const cuttingVolume = 50.0; // Example cutting volume
             const newStrata = treeStrataExample; // Example tree strata in TreeStrata format
             const areaPolygons = areaPolygonsExample; // Example polygons in PolygonGeometry format

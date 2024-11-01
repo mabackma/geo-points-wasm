@@ -1,9 +1,184 @@
-import init, { geo_json_from_coords, SharedBuffer } from './pkg/geo_points_wasm.js';
+import { treeStrataExample, areaPolygonsExample } from './testData.js';
+import init, { VirtualForest, Trees } from './pkg/geo_points_wasm.js';
 
-var map = L.map('map').setView([66.455, 25.385], 15);
-L.tileLayer('https://api.maptiler.com/maps/outdoor-v2/{z}/{x}/{y}.png?key=IpbAE6ELT0NSokMlB6KG', {
-    attribution: '<a href="https://www.maptiler.com/copyright/" target="_blank">&copy; MapTiler</a> <a href="https://www.openstreetmap.org/copyright" target="_blank">&copy; OpenStreetMap contributors</a>',   
-}).addTo(map);
+let memory
+let forest
+
+window.addEventListener('DOMContentLoaded', async () => {
+
+    const wasm = await init()
+
+    memory = wasm.memory;
+
+    const jsonState = localStorage.getItem('current_virtual_forest')
+    if (jsonState) {
+        
+        forest = VirtualForest.from_json(jsonState)
+        
+    }
+
+    const div = document.createElement('div')
+
+    const button = document.createElement('button')
+
+    button.textContent = 'hae tilat'
+
+    button.addEventListener('click', () => {
+
+        if (forest) {
+
+
+            div.textContent = "tilat: " + forest.get_realestates().map(r => r.id).join('')
+
+        }
+    })
+
+    const generateInput = document.createElement('textarea')
+
+    const generateButton = document.createElement('button')
+
+    generateButton.textContent = 'Generoi puut BBOX:n sisällä'
+
+    generateButton.addEventListener('click', () => {
+
+        if (forest) {
+
+            console.log(generateInput.value)
+
+            const [
+                min_x,
+                max_x,
+                min_y,
+                max_y
+            ] = generateInput.value.split(',').map(val => +val.trim())
+
+            console.log(min_x, max_x, min_y, max_y)
+            if (min_x && max_x && min_y && max_y) {
+
+                const trees = forest.generate_trees_bbox(
+                    min_x,
+                    max_x,
+                    min_y,
+                    max_y,
+                )
+
+                printTrees(trees);
+            }
+            //25.38536028647170, 66.45444694596549, 25.386342814842518, 66.45536783229207
+        }
+    })
+
+    const operationButton = document.createElement('button')
+
+    operationButton.textContent = 'Create operation'
+
+    operationButton.addEventListener('click', () => {
+
+        if (forest) {
+            // Define the parameters for the function call
+            const standId = 2008; // Example stand ID
+            const operationName = 3; // 1 for Cutting, 2 for Thinning, 3 for Simulation            
+            const cuttingVolume = 50.0; // Example cutting volume
+            const newStrata = treeStrataExample; // Example tree strata in TreeStrata format
+            const areaPolygons = areaPolygonsExample; // Example polygons in PolygonGeometry format
+
+            let trees = forest.generate_trees_bbox(
+                25.38536028647170, 
+                66.45444694596549, 
+                25.386342814842518, 
+                66.45536783229207
+            )
+
+            // Get the GeoJSON data as a JsValue from Rust
+            const geojsonNoOperation = trees.to_geojson();
+            console.log("geojsonNoOperation")
+            console.log(geojsonNoOperation)
+
+            forest.set_operation(standId, operationName, areaPolygons, cuttingVolume, newStrata);
+
+            trees = forest.generate_trees_bbox(
+                25.38536028647170, 
+                66.45444694596549, 
+                25.386342814842518, 
+                66.45536783229207
+            )
+
+            // Get the GeoJSON data as a JsValue from Rust
+            const geojsonWithOperation = trees.to_geojson();
+            console.log("geojsonWithOperation")
+            console.log(geojsonWithOperation)
+
+            trees = forest.generate_trees_bbox(
+                25.38536028647170, 
+                66.45444694596549, 
+                25.386342814842518, 
+                66.45536783229207
+            )
+            //printTrees(trees);
+        }
+    })
+
+    document.body.append(div, button, generateButton, generateInput, operationButton)
+
+
+    if (forest) {
+        const min_x = 25.347136232586948;
+        const max_x = 25.42651387476916;
+        const min_y = 66.42980392068148;
+        const max_y = 66.46850960846054;
+
+        const result = await forest.geo_json_from_coords(min_x, max_x, min_y, max_y);
+
+        console.log(result)
+    }
+
+})
+
+function downloadBlob(blob, filename) {
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+
+    a.href = url;
+    a.download = filename || 'download';
+
+    const clickHandler = () => {
+        setTimeout(() => {
+            URL.revokeObjectURL(url);
+            removeEventListener('click', clickHandler);
+        }, 150);
+    };
+
+    a.addEventListener('click', clickHandler, false);
+
+    a.click()
+    // return a;
+}
+
+function callback(treeArgs) {
+    // Unpack the arguments from the array
+    const x = treeArgs[0];
+    const y = treeArgs[1];
+    const z = treeArgs[2];
+    const species = treeArgs[3];
+    const height = treeArgs[4];
+    const status = treeArgs[5];
+    const stand_number = treeArgs[6];
+    
+    console.log(x, y, z, species, height, status, stand_number);
+}
+
+function printTrees(trees) {
+    const xValues = trees.x();
+    const yValues = trees.y();
+    const zValues = trees.z();
+    const speciesValues = trees.species();
+    const heightValues = trees.height();
+    const statusValues = trees.status();
+    const standNumberValues = trees.stand_number();
+
+    const treesObject = new Trees(xValues, yValues, zValues, speciesValues, heightValues, statusValues, standNumberValues);
+    treesObject.for_each(callback);
+}
 
 async function handleFile(file) {
     const reader = new FileReader();
@@ -11,73 +186,29 @@ async function handleFile(file) {
     reader.onload = async function (event) {
         const xmlContent = event.target.result;
 
-        // Initialize the WebAssembly module
-        const wasm = await init();
-        const memory = wasm.memory;
-
         try {
-            // Start timing
-            const start = performance.now();
+            forest = new VirtualForest(xmlContent)
 
-            // Example coordinates for the bounding box:
-            /*
-            const min_x = 25.347136232586948;
-            const max_x = 25.42651387476916;
-            const min_y = 66.42980392068148;
-            const max_y = 66.46850960846054;
+            await forest.get_infrastructure(xmlContent);
+
+            const jsonState = forest.to_json()
+
+            localStorage.setItem('current_virtual_forest', jsonState)
+
+            //console.log(jsonState)
             
-            const min_x = 25.40816481024935;
-            const max_x = 25.40907894043688;
-            const min_y = 66.44532693892663;
-            const max_y = 66.44629687395998;
-            */
-            const min_x = 25.385360286471705;
-            const max_x = 25.386342814842518;
-            const min_y = 66.45444694596549;
-            const max_y = 66.45536783229207;
+            const realEstates = forest.get_realestates()
 
-            // Call the WebAssembly function with the XML content
-            const res = await geo_json_from_coords(min_x, max_x, min_y, max_y, xmlContent);
-            const result = JSON.parse(res);
+            //console.log(realEstates)
 
-            const geojson = result.geojson;
-            const treeCount = result.tree_count;
-            const maxTreeCount = result.max_tree_count;
-            const bufferPtr = result.buffer_pointer;
+            const selected = forest.get_selected_realestate()
 
-            // Display the GeoJSON on the map
-            displayGeoJSONOnMap(geojson);
+            //console.log(selected)
 
-            // Access the raw memory buffer directly using Float64Array
-            //empty_function(xmlContent);
-            const wasmMemory = new Float64Array(memory.buffer, Number(bufferPtr), maxTreeCount * 7);
+            const stand = forest.get_stand_by_id("2553942")
 
-            // End timing
-            const end = performance.now();
-            const duration = end - start;
-            console.log(`JAVASCRIPT Time elapsed: ${duration} ms`);
-            
-            // Log the GeoJSON and tree data
-            console.log('JAVASCRIPT GeoJson:', geojson);
-            console.log('JAVASCRIPT Max tree count:', maxTreeCount);
-            console.log('JAVASCRIPT Tree count:', treeCount);
-            console.log('JAVASCRIPT Buffer Pointer:', bufferPtr);
-            displayTrees(treeCount, wasmMemory);
+            console.log(stand)
 
-            // Create a SharedBuffer instance and set the pointer to the buffer
-            const sharedBuffer = new SharedBuffer(maxTreeCount);
-            sharedBuffer.set_ptr(bufferPtr);
-
-            // Cut 500 trees from the entire stand
-            let treesToCut = 100;
-            let standId = 918;
-            
-            // Call the WebAssembly method to cut the trees
-            console.log(`JAVASCRIPT Let\'s cut some trees! Cutting ${treesToCut} trees from stand ${standId}...`);
-            sharedBuffer.forest_clearing(standId, treesToCut, treeCount);
-
-            // Log the updated tree data
-            displayTrees(treeCount, wasmMemory);
         } catch (error) {
             console.error('JAVASCRIPT Error:', error);
         }
@@ -86,43 +217,10 @@ async function handleFile(file) {
     reader.readAsText(file);
 }
 
-// Function to display GeoJSON on the map
-function displayGeoJSONOnMap(geojson) {
-    // Create a GeoJSON layer and add it to the map
-    const geoJsonLayer = L.geoJSON(geojson).addTo(map);
-
-    // Fit map to the bounds of the GeoJSON data
-    const bounds = geoJsonLayer.getBounds();
-    map.fitBounds(bounds);
-}
-
-function displayTrees(treeCount, wasmMemory) {
-    console.log(`JAVASCRIPT Logging trees in bounding box...`);
-
-    let treesInBboxCount = 0;
-    for (let i = 0; i < treeCount; i++) {
-        const base = i * 7; // Calculate base index for the tree data
-        const standId = wasmMemory[base]; // stand id as f64
-        const x = wasmMemory[base + 1];      // x coordinate
-        const y = wasmMemory[base + 2];      // y coordinate
-        const species = wasmMemory[base + 3]; // species as f64
-        const treeHeight = wasmMemory[base + 4]; // height as f64
-        const treeStatus = wasmMemory[base + 5]; // status as f64
-        const inBbox = wasmMemory[base + 6]; // inside_bbox as f64
-
-        // Log if in bounding box
-        if (inBbox !== 0) {
-            console.log(`JAVASCRIPT Tree ${i}: stand=${standId}, x=${x}, y=${y}, species=${species}, height=${treeHeight}, status=${treeStatus}`);
-            treesInBboxCount++;
-        } 
-    }
-
-    console.log(`JAVASCRIPT Done logging ${treesInBboxCount} trees`);
-}
-
 document.getElementById('fileInput').addEventListener('change', (event) => {
     const file = event.target.files[0];
     if (file) {
         handleFile(file);
     }
 });
+

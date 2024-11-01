@@ -77,21 +77,44 @@ window.addEventListener('DOMContentLoaded', async () => {
         if (forest) {
             // Define the parameters for the function call
             const standId = 2008; // Example stand ID
-            const operationName = 2; // 1 for Cutting, 2 for Thinning, 3 for Simulation            
+            const operationName = 3; // 1 for Cutting, 2 for Thinning, 3 for Simulation            
             const cuttingVolume = 50.0; // Example cutting volume
             const newStrata = treeStrataExample; // Example tree strata in TreeStrata format
             const areaPolygons = areaPolygonsExample; // Example polygons in PolygonGeometry format
-            
-            forest.set_operation(standId, operationName, areaPolygons, cuttingVolume, newStrata);
 
-            const trees = forest.generate_trees_bbox(
+            let trees = forest.generate_trees_bbox(
                 25.38536028647170, 
                 66.45444694596549, 
                 25.386342814842518, 
                 66.45536783229207
             )
 
-            printTrees(trees);
+            // Get the GeoJSON data as a JsValue from Rust
+            const geojsonNoOperation = trees.to_geojson();
+            console.log("geojsonNoOperation")
+            console.log(geojsonNoOperation)
+
+            forest.set_operation(standId, operationName, areaPolygons, cuttingVolume, newStrata);
+
+            trees = forest.generate_trees_bbox(
+                25.38536028647170, 
+                66.45444694596549, 
+                25.386342814842518, 
+                66.45536783229207
+            )
+
+            // Get the GeoJSON data as a JsValue from Rust
+            const geojsonWithOperation = trees.to_geojson();
+            console.log("geojsonWithOperation")
+            console.log(geojsonWithOperation)
+
+            trees = forest.generate_trees_bbox(
+                25.38536028647170, 
+                66.45444694596549, 
+                25.386342814842518, 
+                66.45536783229207
+            )
+            //printTrees(trees);
         }
     })
 

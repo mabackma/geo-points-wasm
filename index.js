@@ -76,8 +76,8 @@ window.addEventListener('DOMContentLoaded', async () => {
 
         if (forest) {
             // Define the parameters for the function call
-            const standId = 2008; // Example stand ID
-            const operationName = 3; // 1 for Cutting, 2 for Thinning, 3 for Simulation            
+            const standId = 2554731; // Example stand ID
+            const operationName = 1; // 1 for Cutting, 2 for Thinning, 3 for Simulation            
             const cuttingVolume = 50.0; // Example cutting volume
             const newStrata = treeStrataExample; // Example tree strata in TreeStrata format
             const areaPolygons = areaPolygonsExample; // Example polygons in PolygonGeometry format
@@ -162,9 +162,9 @@ function callback(treeArgs) {
     const species = treeArgs[3];
     const height = treeArgs[4];
     const status = treeArgs[5];
-    const stand_number = treeArgs[6];
+    const stand_id = treeArgs[6];
     
-    console.log(x, y, z, species, height, status, stand_number);
+    console.log(x, y, z, species, height, status, stand_id);
 }
 
 function printTrees(trees) {
@@ -174,7 +174,7 @@ function printTrees(trees) {
     const speciesValues = trees.species();
     const heightValues = trees.height();
     const statusValues = trees.status();
-    const standNumberValues = trees.stand_number();
+    const standNumberValues = trees.stand_id();
 
     const treesObject = new Trees(xValues, yValues, zValues, speciesValues, heightValues, statusValues, standNumberValues);
     treesObject.for_each(callback);

@@ -91,7 +91,7 @@ window.addEventListener('DOMContentLoaded', async () => {
 
             // Get the GeoJSON data as a JsValue from Rust
             const geojsonNoOperation = trees.to_geojson();
-            console.log("geojsonNoOperation")
+            console.log("Geojson No Operation:")
             console.log(geojsonNoOperation)
 
             forest.set_operation(standId, operationName, areaPolygons, cuttingVolume, newStrata);
@@ -105,7 +105,7 @@ window.addEventListener('DOMContentLoaded', async () => {
 
             // Get the GeoJSON data as a JsValue from Rust
             const geojsonWithOperation = trees.to_geojson();
-            console.log("geojsonWithOperation")
+            console.log("Geojson With Operation ", operationName)
             console.log(geojsonWithOperation)
 
             trees = forest.generate_trees_bbox(

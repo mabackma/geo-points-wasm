@@ -132,6 +132,19 @@ window.addEventListener('DOMContentLoaded', async () => {
         console.log(result)
     }
 
+    // Example of updating property data from a polygon string
+/*     let polygonString = "393960.156%206801453.126,%20394798.608%206801657.878,%20394930.512%206801670.111,%20395028.723%206802116.858,%20394258.945%206801929.148,%20394261.711%206801810.541,%20394091.166%206801665.961,%20393960.156%206801453.126";
+
+    try {
+        // Update the property data with the polygon string
+        await forest.update_property_data_from_polygon_string(polygoString);
+        
+        // Now you can access the updated property data in the forest object
+        console.log("Updated forest property data:", forest);
+    } catch (error) {
+        console.error("Error updating property data:", error);
+    } */
+
 })
 
 function downloadBlob(blob, filename) {
